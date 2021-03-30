@@ -30,6 +30,8 @@ SET_TARGET_PROPERTIES (zlib PROPERTIES FOLDER ThirdPart)
 SET_TARGET_PROPERTIES (zlibstatic PROPERTIES FOLDER ThirdPart)
 
 
+add_subdirectory(framework)
+
 ucm_dir_list("demos" demos)
 
 foreach(X IN LISTS demos)

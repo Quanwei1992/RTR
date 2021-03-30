@@ -1,0 +1,6 @@
+set(this framework)
+
+ucm_add_dirs(include/framework src TO sources)
+add_library(${this} STATIC ${sources})
+target_include_directories(${this} PUBLIC include)
+target_link_libraries(${this} PUBLIC glad glfw stb glm assimp)
