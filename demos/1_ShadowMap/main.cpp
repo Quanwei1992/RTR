@@ -3,11 +3,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "framework/Application.h"
-#include <framework/Shader.h>
-#include <framework/Camera.h>
-#include <framework/Mesh.h>
-#include "framework/Material.h"
+#include "framework/application.h"
+#include <framework/shader.h>
+#include <framework/camera.h>
+#include <framework/model.h>
 #include <iostream>
 
 #define SAFE_DELETE(x) if(x!=nullptr) delete x;x=nullptr
@@ -20,7 +19,10 @@ private:
 	double _lastX = 0;
 	double _lastY = 0;
 	bool _firstMouse = true;
-	//Model* _Marry = nullptr;
+	Shader* _phongShader = nullptr;
+	Shader* _whiteShader = nullptr;
+	Model* _Marry = nullptr;
+	Model* _Floor = nullptr;
 	Mesh* _Cube = nullptr;
 
 
@@ -33,13 +35,18 @@ protected:
 		_lastX = GetWidth() / 2.0f;
 		_lastY = GetHeight() / 2.0f;
 
+		_phongShader = Shader::LoadShader("shaders/phong.vs", "shaders/phong.fs");
+		if (_phongShader == nullptr) return false;
 
-		auto mesh = Mesh::Load("assets/mary/Marry.obj");
-		auto mtl = Material::Load("assets/mary/Marry.mtl");
+		_whiteShader = Shader::LoadShader("shaders/white.vs", "shaders/white.fs");
+		if (_whiteShader == nullptr) return false;
 
-		//_Marry = Model::LoadModel("assets/mary/Marry.obj");
+		_Marry = Model::LoadModel("assets/mary/Marry.obj");
+		if (_Marry == nullptr) return false;
 
-		//if (_Marry == nullptr) return false;
+
+		_Floor = Model::LoadModel("assets/floor/floor.obj");
+		if (_Floor == nullptr) return false;
 
 		_Cube = Mesh::Cube();
 
@@ -56,52 +63,16 @@ protected:
 	{
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-		//glm::vec3 lightPos(0, 0, 0);
-		//double timer = glfwGetTime() * 0.5;
-		//lightPos.x = glm::sin(timer * 3) * 2;
-		//lightPos.y = glm::cos(timer * 2) * 2.5;
-		//lightPos.z = glm::cos(timer) * 2;
-
-		//// view/projection transformations
-		//glm::mat4 projection = glm::perspective(glm::radians(_camera.Zoom), (float)GetWidth() / (float)GetHeight(), 0.1f, 1000.0f);
-		//glm::mat4 view = _camera.GetViewMatrix();
-
-
-		//// render marry
-		//glm::mat4 model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(1, 1, 1));
-		//_phongShader->use();
-		//_phongShader->setMat4("projection", projection);
-		//_phongShader->setMat4("view", view);
-		//_phongShader->setMat4("model", model);
-		//_phongShader->setVec3("uLightPos", lightPos);
-		//_phongShader->setVec3("uCameraPos", _camera.Position);
-		//_phongShader->setFloat("uLightIntensity", 1.0f);
-		//_phongShader->setVec3("uKs", glm::vec3(3.0f));
-		//_Marry->Draw(*_phongShader);
-
-		//// render light cube
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, lightPos);
-		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		//_whiteShader->use();
-		//_whiteShader->setMat4("projection", projection);
-		//_whiteShader->setMat4("view", view);
-		//_whiteShader->setMat4("model", model);
-		//_Cube->Draw(*_whiteShader);
-
 	}
 
 
 	void OnExit() override
 	{
-		//SAFE_DELETE(_phongShader);
-		//SAFE_DELETE(_whiteShader);
-		//SAFE_DELETE(_Marry);
-		//SAFE_DELETE(_Cube);
+		SAFE_DELETE(_phongShader);
+		SAFE_DELETE(_whiteShader);
+		SAFE_DELETE(_Marry);
+		SAFE_DELETE(_Floor);
+		SAFE_DELETE(_Cube);
 	}
 
 
@@ -160,5 +131,5 @@ protected:
 int main()
 {
 	MyApp app;
-	return app.Run("Hello world", 1024, 768);
+	return app.Run("ShadowMap", 1024, 768);
 }

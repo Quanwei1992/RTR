@@ -25,27 +25,37 @@ struct Texture {
     std::string path;
 };
 
-class Mesh {
+class Mesh;
+
+class SubMesh
+{
 public:
-    // mesh Data
-    std::vector<Vertex>       vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
-    unsigned int VAO;
+    SubMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+    void Draw();
+private:
+    friend class Mesh;
+	// mesh Data
+	std::vector<Vertex>  vertices;
+	std::vector<unsigned int> indices;
+	unsigned int VAO;
+	// render data 
+	unsigned int VBO, EBO;
+	// initializes all the buffer objects/arrays
+	void SetupMesh();
+ 
+};
 
-    // constructor
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
-    // render the mesh
-    void Draw(Shader &shader);
+class Mesh 
+{
+public:
+    ~Mesh();
 
+public: 
+    static Mesh* Load(const std::string& filename);
     static Mesh* Cube();
 
-
 private:
-    // render data 
-    unsigned int VBO, EBO;
+    std::vector<SubMesh*> _subMeshes;
 
-    // initializes all the buffer objects/arrays
-    void setupMesh();
 };

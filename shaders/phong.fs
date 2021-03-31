@@ -5,7 +5,7 @@ in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
 
-uniform sampler2D texture_diffuse1;
+uniform sampler2D sampler_diffuse;
 uniform vec3 uKs;
 uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
@@ -19,7 +19,7 @@ void main()
     vec3 reflectDir = reflect(-lightDir,norm);
     float diff = max(dot(lightDir,norm),0.0);
     float light_atten_coff = uLightIntensity / length(uLightPos - FragPos);
-    vec3 color = pow(texture2D(texture_diffuse1,TexCoords).rgb,vec3(2.2));
+    vec3 color = pow(texture2D(sampler_diffuse,TexCoords).rgb,vec3(2.2));
     vec3 ambient = color * 0.03;
     vec3 diffuse = color * diff * light_atten_coff;
 

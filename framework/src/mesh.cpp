@@ -1,52 +1,27 @@
 #include "framework/mesh.h"
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <map>
+#include <vector>
 using namespace std;
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
+SubMesh::SubMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	this->textures = textures;
-
-	// now that we have all the required data, set the vertex buffers and its attribute pointers.
-	setupMesh();
+	SetupMesh();
 }
 
-void Mesh::Draw(Shader& shader)
+void SubMesh::Draw()
 {
-	// bind appropriate textures
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int normalNr = 1;
-	unsigned int heightNr = 1;
-	for (unsigned int i = 0; i < textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-		// retrieve texture number (the N in diffuse_textureN)
-		string number;
-		string name = textures[i].type;
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++); // transfer unsigned int to stream
-		else if (name == "texture_normal")
-			number = std::to_string(normalNr++); // transfer unsigned int to stream
-		else if (name == "texture_height")
-			number = std::to_string(heightNr++); // transfer unsigned int to stream
-
-		// now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-		// and finally bind the texture
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
-	}
-
-	// draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT,0);
 	glBindVertexArray(0);
-
-	// always good practice to set everything back to defaults once configured.
-	glActiveTexture(GL_TEXTURE0);
 }
 
 Mesh* Mesh::Cube()
@@ -96,12 +71,121 @@ Mesh* Mesh::Cube()
 			16, 17, 18, 16, 18, 19,   // right
 			20, 21, 22, 20, 22, 23,   // left	
 	};
-	std::vector<Texture> textures;
-	Mesh* cube = new Mesh(vertices, indices, textures);
+	Mesh* cube = new Mesh();
+	SubMesh* subMesh = new SubMesh(vertices, indices);
+	cube->_subMeshes.push_back(subMesh);
 	return cube;
 }
 
-void Mesh::setupMesh()
+
+
+SubMesh* process_mesh(aiMesh* mesh, const aiScene* scene)
+{
+	// data to fill
+	vector<Vertex> vertices;
+	vector<unsigned int> indices;
+	vector<Texture> textures;
+
+	// walk through each of the mesh's vertices
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex vertex;
+		glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+		// positions
+		vector.x = mesh->mVertices[i].x;
+		vector.y = mesh->mVertices[i].y;
+		vector.z = mesh->mVertices[i].z;
+		vertex.Position = vector;
+		// normals
+		if (mesh->HasNormals())
+		{
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.Normal = vector;
+		}
+		// texture coordinates
+		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+		{
+			glm::vec2 vec;
+			// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
+			// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
+			vec.x = mesh->mTextureCoords[0][i].x;
+			vec.y = mesh->mTextureCoords[0][i].y;
+			vertex.TexCoords = vec;
+			// tangent
+			vector.x = mesh->mTangents[i].x;
+			vector.y = mesh->mTangents[i].y;
+			vector.z = mesh->mTangents[i].z;
+			vertex.Tangent = vector;
+			// bitangent
+			vector.x = mesh->mBitangents[i].x;
+			vector.y = mesh->mBitangents[i].y;
+			vector.z = mesh->mBitangents[i].z;
+			vertex.Bitangent = vector;
+		}
+		else
+			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+
+		vertices.push_back(vertex);
+	}
+	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		// retrieve all indices of the face and store them in the indices vector
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+	return new SubMesh(vertices, indices);
+}
+
+
+void process_node(std::vector<SubMesh*>& meshes,aiNode* node, const aiScene* scene)
+{
+	// process each mesh located at the current node
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		// the node object only contains indices to index the actual objects in the scene. 
+		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		meshes.push_back(process_mesh(mesh, scene));
+	}
+	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		process_node(meshes,node->mChildren[i], scene);
+	}
+}
+
+
+Mesh::~Mesh()
+{
+	for (auto subMesh : _subMeshes)
+	{
+		delete subMesh;
+	}
+	_subMeshes.clear();
+}
+
+Mesh* Mesh::Load(const std::string& filename)
+{
+	std::vector<SubMesh*> meshes;
+	// read file via ASSIMP
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	// check for errors
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	{
+		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+		return nullptr;
+	}
+	Mesh* mesh = new Mesh;
+	process_node(mesh->_subMeshes, scene->mRootNode, scene);
+	return mesh;
+}
+
+void SubMesh::SetupMesh()
 {
 	// create buffers/arrays
 	glGenVertexArrays(1, &VAO);
@@ -138,3 +222,4 @@ void Mesh::setupMesh()
 
 	glBindVertexArray(0);
 }
+
