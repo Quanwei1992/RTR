@@ -1,4 +1,7 @@
 #include "framework/application.h"
+#include "framework/Mesh.h"
+#include "framework/MeshRender.h"
+#include "framework/Material.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -102,6 +105,23 @@ void Application::Render()
 void Application::OnExit()
 {
 
+	for (MeshRender* render : _renders)
+	{
+		delete render;
+	}
+	_renders.clear();
+
+	for (Material* mtl : _materials)
+	{
+		delete mtl;
+	}
+	_materials.clear();
+
+	for (Mesh* mesh : _meshes)
+	{
+		delete mesh;
+	}
+	_meshes.clear();
 }
 
 void Application::OnSizeChange(int width, int height)
@@ -144,6 +164,27 @@ int Application::GetHeight()
 GLFWwindow* Application::GetWindow()
 {
 	return _window;
+}
+
+Mesh* Application::LoadMesh(const std::string& filename)
+{
+	Mesh* mesh = Mesh::Load(filename);
+	_meshes.push_back(mesh);
+	return mesh;
+}
+
+Material* Application::LoadMaterial(const std::string& filename)
+{
+	Material* mtl = Material::Load(filename);
+	_materials.push_back(mtl);
+	return mtl;
+}
+
+MeshRender* Application::CreateMeshRender(Mesh* mesh)
+{
+	MeshRender* render = new MeshRender(mesh);
+	_renders.push_back(render);
+	return render;
 }
 
 int Application::InitRenderEnv()

@@ -168,6 +168,11 @@ Mesh::~Mesh()
 	_subMeshes.clear();
 }
 
+const std::vector<SubMesh*>& Mesh::GetSubMeshes() const
+{
+	return _subMeshes;
+}
+
 Mesh* Mesh::Load(const std::string& filename)
 {
 	std::vector<SubMesh*> meshes;

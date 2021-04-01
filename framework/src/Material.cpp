@@ -2,6 +2,7 @@
 #include "framework/Shader.h"
 #include "framework/Texture2D.h"
 #include "json.hpp"
+#include <cassert>
 
 using json = nlohmann::json;
 
@@ -156,6 +157,17 @@ Material* Material::Load(const std::string& filename)
 					std::cout << "ERROR::MATERIAL::LOAD TEXTURE FAILED " << value << std::endl;
 				}
 			}
+			else if (type == "VEC4")
+			{
+			 	const auto& value = property["value"];
+				if (value.size() != 4)
+				{
+					std::cout << "ERROR::MATERIAL::PROPERTY VALUE WRONG FORMAT " << name << std::endl;
+					delete mtl;
+					return nullptr;
+				}
+				mtl->setVec4(name,value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>());
+			}
 		}
 	}
 	catch (std::ifstream::failure)
@@ -177,5 +189,61 @@ Material::~Material()
 		delete tex;
 	}
 	_textures.clear();
+}
+
+void Material::setupShaderUniforms()
+{
+	unsigned int texureIndex = 0;
+	_shader->use();
+	for (auto kv : _properties)
+	{
+		auto name = kv.first;
+		const auto& value = kv.second;
+		switch (value.Type)
+		{
+		default:
+			break;
+		case PropertyType::BOOL:
+			_shader->setBool(name, value.b);
+			break;
+		case PropertyType::INT:
+			_shader->setInt(name, value.i);
+			break;
+		case PropertyType::FLOAT:
+			_shader->setFloat(name, value.f);
+			break;
+		case PropertyType::VEC2:
+			_shader->setVec2(name, value.v2);
+			break;
+		case PropertyType::VEC3:
+			_shader->setVec3(name, value.v3);
+			break;
+		case PropertyType::VEC4:
+			_shader->setVec4(name, value.v4);
+			break;
+		case PropertyType::MAT2:
+			_shader->setMat2(name, value.m2);
+			break;
+		case PropertyType::MAT3:
+			_shader->setMat3(name, value.m3);
+			break;
+		case PropertyType::MAT4:
+			_shader->setMat4(name, value.m4);
+			break;
+		case PropertyType::TEX2D:
+		{
+			glActiveTexture(GL_TEXTURE0 + texureIndex);
+			GLint loc = glGetUniformLocation(_shader->ID, name.c_str());
+			if (loc >= 0) {
+				Texture2D* tex2D = static_cast<Texture2D*>(value.p);
+				glUniform1i(loc, texureIndex);
+				glBindTexture(GL_TEXTURE_2D, tex2D->GetID());
+				++texureIndex;
+			}
+		}
+			break;
+		}
+
+	}
 }
 

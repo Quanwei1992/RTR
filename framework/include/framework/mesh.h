@@ -50,6 +50,7 @@ class Mesh
 {
 public:
     ~Mesh();
+    const  std::vector<SubMesh*>& GetSubMeshes() const;
 
 public: 
     static Mesh* Load(const std::string& filename);

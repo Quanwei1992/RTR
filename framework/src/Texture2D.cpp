@@ -4,6 +4,11 @@
 #include <iostream>
 
 
+unsigned int Texture2D::GetID()
+{
+	return _textureID;
+}
+
 Texture2D* Texture2D::Load(const std::string& filename)
 {
 	unsigned int textureID;

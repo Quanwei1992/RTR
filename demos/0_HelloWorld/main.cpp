@@ -3,14 +3,20 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include "framework/Application.h"
-#include <framework/Shader.h>
-#include <framework/Camera.h>
-#include <framework/Mesh.h>
+#include "framework/Shader.h"
+#include "framework/Camera.h"
+#include "framework/Mesh.h"
 #include "framework/Material.h"
+#include "framework/GameObject.h"
+#include "framework/Renderer.h"
+#include "framework/MeshRender.h"
+
 #include <iostream>
 
 #define SAFE_DELETE(x) if(x!=nullptr) delete x;x=nullptr
+#define CHECK_NULL(x) if(x==nullptr) return false
 
 class MyApp : public Application
 {
@@ -20,9 +26,10 @@ private:
 	double _lastX = 0;
 	double _lastY = 0;
 	bool _firstMouse = true;
-	//Model* _Marry = nullptr;
-	Mesh* _Cube = nullptr;
-
+	GameObject _marry = GameObject("Marry");
+	GameObject _light = GameObject("Light");
+	Renderer _renderer;
+	Material* _marryMtl = nullptr;
 
 protected:
 	bool Init() override
@@ -34,14 +41,22 @@ protected:
 		_lastY = GetHeight() / 2.0f;
 
 
-		auto mesh = Mesh::Load("assets/mary/Marry.obj");
-		auto mtl = Material::Load("assets/mary/Marry.mtl");
+		Mesh* mesh = LoadMesh("assets/models/marry/Marry.obj");
+		CHECK_NULL(mesh);
+		Material* mtl = LoadMaterial("assets/materials/marry.json");
+		CHECK_NULL(mtl);
+		MeshRender* render = CreateMeshRender(mesh);
+		render->AddMaterial(mtl);
+		_marry.SetMeshRender(render);
+		_marryMtl = mtl;
+		_marryMtl->setFloat("uLightIntensity", 1.0f);
 
-		//_Marry = Model::LoadModel("assets/mary/Marry.obj");
-
-		//if (_Marry == nullptr) return false;
-
-		_Cube = Mesh::Cube();
+		mesh = Mesh::Cube();
+		mtl = LoadMaterial("assets/materials/light_cube.json");
+		render = CreateMeshRender(mesh);
+		render->AddMaterial(mtl);
+		_light.SetMeshRender(render);
+		_light.SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 
 		return true;
 	}
@@ -49,7 +64,12 @@ protected:
 
 	void Update() override
 	{
-
+		glm::vec3 lightPos(0, 0, 0);
+		double timer = glfwGetTime() * 0.5;
+		lightPos.x = glm::sin(timer * 3) * 2;
+		lightPos.y = glm::cos(timer * 2) * 2.5;
+		lightPos.z = glm::cos(timer) * 2;
+		_light.SetPosition(lightPos);
 	}
 
 	void Render() override
@@ -57,41 +77,20 @@ protected:
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glm::mat4 projection = glm::perspective(glm::radians(_camera.Zoom), (float)GetWidth() / (float)GetHeight(), 0.1f, 1000.0f);
+		glm::mat4 view = _camera.GetViewMatrix();
 
-		//glm::vec3 lightPos(0, 0, 0);
-		//double timer = glfwGetTime() * 0.5;
-		//lightPos.x = glm::sin(timer * 3) * 2;
-		//lightPos.y = glm::cos(timer * 2) * 2.5;
-		//lightPos.z = glm::cos(timer) * 2;
+		_marryMtl->setVec3("uLightPos", _light.GetPosition());
+		_marryMtl->setVec3("uCameraPos", _camera.Position);
 
-		//// view/projection transformations
-		//glm::mat4 projection = glm::perspective(glm::radians(_camera.Zoom), (float)GetWidth() / (float)GetHeight(), 0.1f, 1000.0f);
-		//glm::mat4 view = _camera.GetViewMatrix();
+		_renderer.Clear();
+		_renderer.SetProj(projection);
+		_renderer.SetView(view);
+		
+		_renderer.AddMeshRender(_marry.GetMeshRender());
+		_renderer.AddMeshRender(_light.GetMeshRender());
+		_renderer.Render();
 
-
-		//// render marry
-		//glm::mat4 model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(1, 1, 1));
-		//_phongShader->use();
-		//_phongShader->setMat4("projection", projection);
-		//_phongShader->setMat4("view", view);
-		//_phongShader->setMat4("model", model);
-		//_phongShader->setVec3("uLightPos", lightPos);
-		//_phongShader->setVec3("uCameraPos", _camera.Position);
-		//_phongShader->setFloat("uLightIntensity", 1.0f);
-		//_phongShader->setVec3("uKs", glm::vec3(3.0f));
-		//_Marry->Draw(*_phongShader);
-
-		//// render light cube
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, lightPos);
-		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		//_whiteShader->use();
-		//_whiteShader->setMat4("projection", projection);
-		//_whiteShader->setMat4("view", view);
-		//_whiteShader->setMat4("model", model);
-		//_Cube->Draw(*_whiteShader);
 
 	}
 
@@ -144,13 +143,13 @@ protected:
 		Application::ProcessInput(window);
 		float deltaTime = GetDetaTime();
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			_camera.ProcessKeyboard(FORWARD, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			_camera.ProcessKeyboard(BACKWARD, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			_camera.ProcessKeyboard(LEFT, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			_camera.ProcessKeyboard(RIGHT, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 	}
 
 };

@@ -1,0 +1,11 @@
+{
+    "VertexShader" : "assets/shaders/unlit_color.vs",
+    "FragmentShader" : "assets/shaders/unlit_color.fs",
+    "Properties" : [
+        {
+            "name" : "Color",
+            "type" : "VEC4",
+            "value" : [1.0,1.0,1.0,1.0]
+        }
+    ]
+}

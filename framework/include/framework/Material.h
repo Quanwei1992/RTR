@@ -6,6 +6,7 @@
 
 class Shader;
 class Texture2D;
+class Renderer;
 
 enum class PropertyType
 {
@@ -73,8 +74,11 @@ public:
 	~Material();
 
 private:
+	friend class Renderer;
+	void setupShaderUniforms();
+
+private:
 	Shader* _shader;
 	std::vector<Texture2D*> _textures;
-	std::map<std::string, int> fuck;
 	std::map<std::string, PropertyValue> _properties;
 };

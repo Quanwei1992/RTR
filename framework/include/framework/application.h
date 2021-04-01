@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
+#include <vector>
 struct GLFWwindow;
+
+class Mesh;
+class Material;
+class MeshRender;
 
 class Application
 {
@@ -23,6 +28,10 @@ protected:
 	int GetHeight();
 	GLFWwindow* GetWindow();
 
+	Mesh* LoadMesh(const std::string& filename);
+	Material* LoadMaterial(const std::string& filename);
+	MeshRender* CreateMeshRender(Mesh* mesh);
+
 private:
 	int InitRenderEnv();
 
@@ -37,5 +46,8 @@ private:
 	GLFWwindow* _window;
 	float _deltaTime = 0.0f;
 	float _lastFrame = 0.0f;
+	std::vector<MeshRender*> _renders;
+	std::vector<Mesh*> _meshes;
+	std::vector<Material*> _materials;
 
 };
