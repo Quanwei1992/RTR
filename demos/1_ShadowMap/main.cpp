@@ -3,13 +3,20 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "framework/application.h"
-#include <framework/shader.h>
-#include <framework/camera.h>
-#include <framework/model.h>
+
+#include "framework/Application.h"
+#include "framework/Shader.h"
+#include "framework/Camera.h"
+#include "framework/Mesh.h"
+#include "framework/Material.h"
+#include "framework/GameObject.h"
+#include "framework/Renderer.h"
+#include "framework/MeshRender.h"
+
 #include <iostream>
 
 #define SAFE_DELETE(x) if(x!=nullptr) delete x;x=nullptr
+#define CHECK_NULL(x) if(x==nullptr) return false
 
 class MyApp : public Application
 {
@@ -19,12 +26,11 @@ private:
 	double _lastX = 0;
 	double _lastY = 0;
 	bool _firstMouse = true;
-	Shader* _phongShader = nullptr;
-	Shader* _whiteShader = nullptr;
-	Model* _Marry = nullptr;
-	Model* _Floor = nullptr;
-	Mesh* _Cube = nullptr;
-
+	GameObject _marry = GameObject("Marry");
+	GameObject _light = GameObject("Light");
+	GameObject _floor = GameObject("Floor");
+	Renderer _renderer;
+	Material* _marryMtl = nullptr;
 
 protected:
 	bool Init() override
@@ -35,44 +41,72 @@ protected:
 		_lastX = GetWidth() / 2.0f;
 		_lastY = GetHeight() / 2.0f;
 
-		_phongShader = Shader::LoadShader("shaders/phong.vs", "shaders/phong.fs");
-		if (_phongShader == nullptr) return false;
 
-		_whiteShader = Shader::LoadShader("shaders/white.vs", "shaders/white.fs");
-		if (_whiteShader == nullptr) return false;
+		Mesh* mesh = LoadMesh("assets/models/marry/Marry.obj");
+		Material* mtl = LoadMaterial("assets/materials/marry.json");
+		MeshRender* render = CreateMeshRender(mesh);
+		render->AddMaterial(mtl);
+		_marry.SetMeshRender(render);
+		_marryMtl = mtl;
+		_marryMtl->setFloat("uLightIntensity", 1.0f);
 
-		_Marry = Model::LoadModel("assets/mary/Marry.obj");
-		if (_Marry == nullptr) return false;
+		mesh = Mesh::Cube();
+		mtl = LoadMaterial("assets/materials/lightCube.json");
+		render = CreateMeshRender(mesh);
+		render->AddMaterial(mtl);
+		_light.SetMeshRender(render);
+		_light.SetScale(glm::vec3(0.1f, 0.1f, 0.1f));
 
-
-		_Floor = Model::LoadModel("assets/floor/floor.obj");
-		if (_Floor == nullptr) return false;
-
-		_Cube = Mesh::Cube();
-
+		mesh = LoadMesh("assets/models/floor/floor.obj");
+		mtl = LoadMaterial("assets/materials/floor.json");
+		render = CreateMeshRender(mesh);
+		render->AddMaterial(mtl);
+		_floor.SetMeshRender(render);
+	
 		return true;
 	}
 
 
 	void Update() override
 	{
-
+		glm::vec3 lightPos(0, 0, 0);
+		double timer = glfwGetTime() * 0.5;
+		lightPos.x = glm::sin(timer * 3) * 2;
+		lightPos.y = glm::cos(timer * 2) * 2.5;
+		lightPos.z = glm::cos(timer) * 2;
+		_light.SetPosition(lightPos);
 	}
 
 	void Render() override
 	{
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 projection = glm::perspective(glm::radians(_camera.Zoom), (float)GetWidth() / (float)GetHeight(), 0.1f, 1000.0f);
+		glm::mat4 view = _camera.GetViewMatrix();
+
+		_marryMtl->setVec3("uLightPos", _light.GetPosition());
+		_marryMtl->setVec3("uCameraPos", _camera.Position);
+
+		_renderer.Clear();
+		_renderer.SetProj(projection);
+		_renderer.SetView(view);
+
+		_renderer.AddMeshRender(_floor.GetMeshRender());
+		_renderer.AddMeshRender(_marry.GetMeshRender());
+		_renderer.AddMeshRender(_light.GetMeshRender());
+		_renderer.Render();
+
+
 	}
 
 
 	void OnExit() override
 	{
-		SAFE_DELETE(_phongShader);
-		SAFE_DELETE(_whiteShader);
-		SAFE_DELETE(_Marry);
-		SAFE_DELETE(_Floor);
-		SAFE_DELETE(_Cube);
+		//SAFE_DELETE(_phongShader);
+		//SAFE_DELETE(_whiteShader);
+		//SAFE_DELETE(_Marry);
+		//SAFE_DELETE(_Cube);
 	}
 
 
@@ -115,13 +149,13 @@ protected:
 		Application::ProcessInput(window);
 		float deltaTime = GetDetaTime();
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			_camera.ProcessKeyboard(FORWARD, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			_camera.ProcessKeyboard(BACKWARD, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			_camera.ProcessKeyboard(LEFT, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			_camera.ProcessKeyboard(RIGHT, deltaTime);
+			_camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 	}
 
 };
@@ -131,5 +165,5 @@ protected:
 int main()
 {
 	MyApp app;
-	return app.Run("ShadowMap", 1024, 768);
+	return app.Run("Hello world", 1024, 768);
 }
