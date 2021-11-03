@@ -1,6 +1,0 @@
-build
-output
-third_part/assimp/test/models/
-third_part/assimp/port/dAssimp/assimp/*.d
-*.pch
-third_part/assimp/test/models-nonbsd/OBJ/*.obj
