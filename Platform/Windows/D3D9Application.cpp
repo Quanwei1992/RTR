@@ -1,6 +1,6 @@
 
 #include "WindowsApplication.hpp"
-#include "D3d/D3D9GraphicsManager.hpp"
+#include "D3D9GraphicsManager.hpp"
 #include "MemoryManager.hpp"
 #include <tchar.h>
 

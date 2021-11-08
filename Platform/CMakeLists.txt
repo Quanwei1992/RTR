@@ -1,5 +1,5 @@
-# Empty
-add_subdirectory(Empty)
-IF(${WIN32})
+if(WIN32)
     add_subdirectory(Windows)
-ENDIF(${WIN32})
+else()
+    add_subdirectory(Empty)
+endif()

@@ -2,10 +2,11 @@ include(${PROJECT_SOURCE_DIR}/cmake/DirectX.cmake)
 
 if(DIRECTX_FOUND)
 
-add_library(D3D9RHI
+add_library(D3D9RHI OBJECT
 D3D9GraphicsManager.cpp
 )
-target_include_directories(D3D9RHI PUBLIC ${DIRECTX_INCLUDE_DIR})
+target_include_directories(D3D9RHI PRIVATE  ${PROJECT_SOURCE_DIR}/Platform/Windows)
+target_include_directories(D3D9RHI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${DIRECTX_INCLUDE_DIR})
 
 #link_directories(${DIRECTX_LIBRARY_DIR});
 target_link_libraries(D3D9RHI
@@ -16,5 +17,6 @@ ${DIRECTX_LIBRARY_DIR}/dxerr.lib
 ${DIRECTX_LIBRARY_DIR}/dxguid.lib
 comctl32.lib
 winmm.lib
+Framework
 )
 endif()

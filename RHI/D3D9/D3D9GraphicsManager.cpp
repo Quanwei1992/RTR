@@ -165,7 +165,7 @@ HRESULT RTR::D3D9GraphicsManager::InitShader()
 		hr = D3DXCompileShaderFromFile(vsPath.c_str(), NULL, NULL, "VSMain", "vs_2_0", D3DXSHADER_DEBUG, &pCode, &pError, &m_pConstantTable);
 		if (FAILED(hr)) {			
 			if (pError) {		
-				strcpy(errInfo, (char*)pError->GetBufferPointer());
+				strcpy_s(errInfo,256, (char*)pError->GetBufferPointer());
 			}
 			SafeRelease(&pError);
 			SafeRelease(&pCode);
@@ -186,7 +186,7 @@ HRESULT RTR::D3D9GraphicsManager::InitShader()
 		hr = D3DXCompileShaderFromFile(psPath.c_str(), NULL, NULL, "PSMain", "ps_2_0", D3DXSHADER_DEBUG, &pCode, &pError, NULL);
 		if (FAILED(hr)) {
 			if (pError) {
-				strcpy(errInfo, (char*)pError->GetBufferPointer());
+				strcpy_s(errInfo,256, (char*)pError->GetBufferPointer());
 			}
 			SafeRelease(&pError);
 			SafeRelease(&pCode);

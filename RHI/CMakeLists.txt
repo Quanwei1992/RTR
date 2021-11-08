@@ -1,7 +1,10 @@
-add_subdirectory(Empty)
-add_subdirectory(OpenGL)
-add_subdirectory(OpenGLES)
-IF(${WIN32})
-# Windows specific code
-add_subdirectory(D3D)
-ENDIF(${WIN32})
+
+if(RTR_RHI STREQUAL "D3D9")
+    add_subdirectory(D3D9)
+elseif(RTR_RHI STREQUAL "OPENGL")
+    add_subdirectory(OpenGL)
+elseif(RTR_RHI STREQUAL "OPENGLES")
+    add_subdirectory(OpenGLES)
+else()
+    add_subdirectory(Empty)
+endif()
