@@ -18,4 +18,5 @@ add_subdirectory(Framework/Common)
 add_subdirectory(Framework/GeomMath)
 add_subdirectory(Platform)
 add_subdirectory(RHI/${RTR_RHI})
-#add_subdirectory(Tests)
+
+add_subdirectory(Tests/GeomMath)

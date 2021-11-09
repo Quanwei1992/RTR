@@ -26,5 +26,3 @@ set(SOURCES_ISPC
 set_target_properties(${this} PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(${this} PROPERTIES OUTPUT_NAME GeomMath)
 ispc_target_add_sources(${this} ${SOURCES_ISPC})
-
-add_subdirectory(test)

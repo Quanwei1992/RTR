@@ -1,2 +1,0 @@
-add_executable(GeomMathTest GeomMath/test.cpp)
-target_link_libraries(GeomMathTest Framework)
