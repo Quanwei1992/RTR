@@ -5,6 +5,10 @@ if(RTR_RHI STREQUAL "D3D9")
 
     add_executable(${this} WindowsApplication.cpp D3D9Application.cpp)
     target_link_libraries(${this} Framework D3D9RHI)
+elseif(RTR_RHI STREQUAL "D3D12")
+
+    add_executable(${this} WindowsApplication.cpp D3D12Application.cpp)
+    target_link_libraries(${this} Framework D3D12RHI d3d12 dxgi d3dcompiler)
 
 elseif(RTR_RHI STREQUAL "OPENGL")
 

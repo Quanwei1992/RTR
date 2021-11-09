@@ -30,7 +30,7 @@ bool RTR::BaseApplication::IsQuit()
     return m_bQuit;
 }
 
-GfxConfiguration RTR::BaseApplication::GetConfiguration()
+GfxConfiguration& RTR::BaseApplication::GetConfiguration()
 {
     return m_Config;
 }

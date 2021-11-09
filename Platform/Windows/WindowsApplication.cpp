@@ -33,8 +33,8 @@ int RTR::WindowsApplication::Initialize()
      RegisterClassEx(&wc);
 
       // create the window and use the result as the handle
-    hWnd = CreateWindowExW(0,
-        L"RTREngine",      // name of the window class
+    hWnd = CreateWindowEx(0,
+        "RTREngine",      // name of the window class
         m_Config.appName,             // title of the window
         WS_OVERLAPPEDWINDOW,              // window style
         CW_USEDEFAULT,                    // x-position of the window

@@ -1,0 +1,1 @@
+cmake -DRTR_RHI=D3D12 -S .\ -B .\Projects

@@ -1,10 +1,1 @@
 
-if(RTR_RHI STREQUAL "D3D9")
-    add_subdirectory(D3D9)
-elseif(RTR_RHI STREQUAL "OPENGL")
-    add_subdirectory(OpenGL)
-elseif(RTR_RHI STREQUAL "OPENGLES")
-    add_subdirectory(OpenGLES)
-else()
-    add_subdirectory(Empty)
-endif()

@@ -11,7 +11,7 @@ namespace RTR
         virtual void Finalize();
         virtual void Tick();
         virtual bool IsQuit();
-        GfxConfiguration GetConfiguration();
+        virtual GfxConfiguration& GetConfiguration();
     
     protected:
         static bool m_bQuit;
