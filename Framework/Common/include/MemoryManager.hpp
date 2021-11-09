@@ -1,38 +1,41 @@
 #pragma once
+#include <new>
 #include "IRuntimeModule.hpp"
 #include "Allocator.hpp"
-#include <new>
 
-namespace RTR {
-    class MemoryManager : implements IRuntimeModule
-    {
-    public:
-        template<typename T, typename... Arguments>
-        T* New(Arguments... parameters)
-        {
-            return new (Allocate(sizeof(T))) T(parameters...);
-        }
+RTR_BEGIN_NAMESPACE
+class MemoryManager : implements IRuntimeModule
+{
+public:
+	template<class T, typename... Arguments>
+	T* New(Arguments... parameters)
+	{
+		return new (Allocate(sizeof(T))) T(parameters...);
+	}
 
-        template<typename T>
-        void Delete(T *p)
-        {
-            reinterpret_cast<T*>(p)->~T();
-            Free(p, sizeof(T));
-        }
+	template<class T>
+	void Delete(T* p)
+	{
+		p->~T();
+		Free(p, sizeof(T));
+	}
 
-    public:
-        virtual ~MemoryManager() {}
+public:
+	virtual ~MemoryManager() {}
 
-        virtual int Initialize();
-        virtual void Finalize();
-        virtual void Tick();
+	virtual int Initialize();
+	virtual void Finalize();
+	virtual void Tick();
 
-        void* Allocate(size_t size);
-        void  Free(void* p, size_t size);
-    private:
-        size_t*        m_pBlockSizeLookup;
-        Allocator*     m_pAllocators;
-    private:
-        Allocator* LookUpAllocator(size_t size);
-    };
-}
+	void* Allocate(size_t size);
+	void* Allocate(size_t size, size_t alignment);
+	void  Free(void* p, size_t size);
+private:
+	static size_t* m_pBlockSizeLookup;
+	static Allocator* m_pAllocators;
+private:
+	static Allocator* LookUpAllocator(size_t size);
+};
+
+
+RTR_END_NAMESPACE
