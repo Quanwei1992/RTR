@@ -17,6 +17,6 @@ ${DIRECTX_LIBRARY_DIR}/dxerr.lib
 ${DIRECTX_LIBRARY_DIR}/dxguid.lib
 comctl32.lib
 winmm.lib
-Framework
+Common
 )
 endif()
