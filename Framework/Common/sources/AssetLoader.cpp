@@ -82,10 +82,10 @@ RTR::AssetLoader::AssetFilePtr AssetLoader::OpenFile(const char* name, AssetOpen
 #endif
 			switch (mode) {
 			case RTR_OPEN_TEXT:
-				fp = fopen(fullPath.c_str(), "r");
+				fopen_s(&fp,fullPath.c_str(), "r");
 				break;
 			case RTR_OPEN_BINARY:
-				fp = fopen(fullPath.c_str(), "rb");
+				fopen_s(&fp,fullPath.c_str(), "rb");
 				break;
 			}
 

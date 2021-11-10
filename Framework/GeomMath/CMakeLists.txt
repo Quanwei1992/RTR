@@ -5,7 +5,7 @@ ucm_add_dirs(include ispc TO sources ADDITIONAL_EXT ispc)
 
 add_library(${this} STATIC ${sources} )
 set_target_properties(${this} PROPERTIES FOLDER Framework)
-target_include_directories(${this} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${this} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR})
 
 
 # ispc

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON) 
 include(cmake/ucm.cmake)
-
+include(cmake/common.cmake)
 ucm_print_flags()
 
 project (RTR)
@@ -14,9 +14,10 @@ elseif(APPLE)
     set_property(CACHE RTR_RHI PROPERTY STRINGS OPENGL EMPTY) 
 endif()
 
-add_subdirectory(Framework/Common)
-add_subdirectory(Framework/GeomMath)
+
+add_subdirectory(Framework)
 add_subdirectory(Platform)
 add_subdirectory(RHI/${RTR_RHI})
+add_subdirectory(Tests)
 
-add_subdirectory(Tests/GeomMath)
+
