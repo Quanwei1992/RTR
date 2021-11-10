@@ -12,7 +12,8 @@ namespace RTR
         virtual void Tick();
         virtual bool IsQuit();
         virtual GfxConfiguration& GetConfiguration();
-    
+	protected:
+		virtual void OnDraw() {};
     protected:
         static bool m_bQuit;
         GfxConfiguration m_Config;

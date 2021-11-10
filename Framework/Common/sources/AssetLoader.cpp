@@ -167,5 +167,30 @@ int32_t AssetLoader::Seek(AssetFilePtr fp, long offset, AssetSeekBase where)
 	return fseek(static_cast<FILE*>(fp), offset, static_cast<int>(where));
 }
 
+Buffer AssetLoader::SyncOpenAndReadBinary(const char* filePath)
+{
+	AssetFilePtr fp = OpenFile(filePath, RTR_OPEN_BINARY);
+	Buffer* pBuff = nullptr;
+
+	if (fp) {
+		size_t length = GetSize(fp);
+
+		pBuff = new Buffer(length);
+		fread(pBuff->m_pData, length, 1, static_cast<FILE*>(fp));
+
+		CloseFile(fp);
+	}
+	else {
+		fprintf(stderr, "Error opening file '%s'\n", filePath);
+		pBuff = new Buffer();
+	}
+
+#ifdef DEBUG
+	fprintf(stderr, "Read file '%s', %d bytes\n", filePath, length);
+#endif
+
+	return *pBuff;
+}
+
 RTR_END_NAMESPACE
 

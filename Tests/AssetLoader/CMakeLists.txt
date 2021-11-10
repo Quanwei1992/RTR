@@ -4,4 +4,4 @@ target_link_libraries(${this} PRIVATE Common)
 set_target_properties(${this} PROPERTIES FOLDER Tests)
 
 
-copy_assets_to(${this})
+rtr_copy_assets_to(${this})

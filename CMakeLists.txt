@@ -17,7 +17,7 @@ endif()
 
 add_subdirectory(Framework)
 add_subdirectory(Platform)
-add_subdirectory(RHI/${RTR_RHI})
+add_subdirectory(RHI)
 add_subdirectory(Tests)
 
 

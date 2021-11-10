@@ -51,7 +51,7 @@ int RTR::OpenGLESGraphicsManager::InitShader()
 	std::ifstream fShaderFile;
 	try
 	{
-		// ���ļ�
+
 		vShaderFile.open(vertexPath);
 		fShaderFile.open(fragmentPath);
 		std::stringstream vShaderStream, fShaderStream;
@@ -77,7 +77,7 @@ int RTR::OpenGLESGraphicsManager::InitShader()
 	GLint sucess;
 	GLchar infoLog[512];
 
-	// ������ɫ��
+
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
 	glCompileShader(vertex);
@@ -88,7 +88,7 @@ int RTR::OpenGLESGraphicsManager::InitShader()
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	// Ƭ����ɫ��
+
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
