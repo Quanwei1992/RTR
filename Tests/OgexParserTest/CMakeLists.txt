@@ -1,0 +1,5 @@
+set(this OgexParserTest)
+add_executable(${this} test.cpp)
+target_link_libraries(${this} PRIVATE Common Parser)
+set_target_properties(${this} PROPERTIES FOLDER Tests)
+rtr_copy_assets_to(${this})

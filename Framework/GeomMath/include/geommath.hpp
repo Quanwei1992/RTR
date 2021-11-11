@@ -171,7 +171,7 @@ std::ostream& operator<<(std::ostream& out, TT<T> vector)
 template <template<typename> class TT, typename T>
 void VectorAdd(TT<T>& result, const TT<T>& vec1, const TT<T>& vec2)
 {
-	ispc::AddByElement(vec1, vec2, result, countof(result.data));
+	ispc::AddByElement(vec1, vec2, result, (int32_t)countof(result.data));
 }
 
 template <template<typename> class TT, typename T>

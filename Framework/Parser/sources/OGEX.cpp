@@ -313,6 +313,18 @@ void RTR::OgexParser::ConvertOddlStructureToSceneNode(const ODDL::Structure& str
 	base_node->AppendChild(std::move(node));
 }
 
+void OutputDataResult(ODDL::DataResult type)
+{
+	int32_t n = static_cast<int32_t>(type);
+	n = endian_net_unsigned_int<int32_t>(n);
+	char* c = reinterpret_cast<char*>(&n);
+
+	for (size_t i = 0; i < sizeof(int32_t); i++) {
+		std::cout << *c++;
+	}
+}
+
+
 std::unique_ptr<RTR::BaseSceneNode> RTR::OgexParser::Parse(const std::string& buf)
 {
 	std::unique_ptr<BaseSceneNode> root_node(new BaseSceneNode("scene_root"));
@@ -329,7 +341,6 @@ std::unique_ptr<RTR::BaseSceneNode> RTR::OgexParser::Parse(const std::string& bu
 			structure = structure->Next();
 		}
 	}
-
 	return std::move(root_node);
 }
 
