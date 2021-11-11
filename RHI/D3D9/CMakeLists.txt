@@ -3,7 +3,7 @@ set(this D3D9RHI)
 
 if(DIRECTX_FOUND)
 
-add_library(${this} OBJECT
+add_library(${this} STATIC
 D3D9GraphicsManager.cpp
 )
 target_include_directories(${this} PRIVATE  ${PROJECT_SOURCE_DIR}/Platform/Windows)

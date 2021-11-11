@@ -1,6 +1,6 @@
 set(this D3D12RHI)
 
-add_library(${this} OBJECT
+add_library(${this} STATIC
     D3D12GraphicsManager.cpp
 )
 target_include_directories(${this} PRIVATE  ${PROJECT_SOURCE_DIR}/Platform/Windows)

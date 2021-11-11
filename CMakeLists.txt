@@ -14,7 +14,7 @@ elseif(APPLE)
     set_property(CACHE RTR_RHI PROPERTY STRINGS OPENGL EMPTY) 
 endif()
 
-
+add_subdirectory(External)
 add_subdirectory(Framework)
 add_subdirectory(Platform)
 add_subdirectory(RHI)

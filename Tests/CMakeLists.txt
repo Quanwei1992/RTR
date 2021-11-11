@@ -1,3 +1,4 @@
 add_subdirectory(GeomMath)
 add_subdirectory(AssetLoader)
 add_subdirectory(TextureLoadTest)
+add_subdirectory(SceneObjectTest)

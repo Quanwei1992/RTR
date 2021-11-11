@@ -1,0 +1,6 @@
+#include "SceneNode.hpp"
+
+RTR_BEGIN_NAMESPACE
+
+
+RTR_END_NAMESPACE

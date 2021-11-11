@@ -14,4 +14,6 @@ typedef struct _Image
 	size_t data_size;
 } Image;
 
+std::ostream& operator<<(std::ostream& out, const Image& image);
+
 RTR_END_NAMESPACE

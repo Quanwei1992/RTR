@@ -1,7 +1,7 @@
 
 set(this D2DRHI)
 
-add_library(${this} OBJECT
+add_library(${this} STATIC
     D2DGraphicsManager.cpp
 )
 target_include_directories(${this} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
